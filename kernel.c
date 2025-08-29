@@ -1,4 +1,21 @@
 #include "headers/utils.h"
+#include "headers/string.h"
+
+void putchar(char c){
+    volatile char* vidmem = (volatile char*) 0xb8000;
+    static int pos = 0;
+    vidmem[pos++] = c;
+    vidmem[pos++] = 0x07;
+}
+
+void putstr(u_string *sentence){
+    volatile unsigned char* vidmem = (volatile unsigned char*) 0xb8000;
+    static int pos;
+    while(*sentence){
+        vidmem[pos++] = sentence++;
+        vidmem[pos++] = 0x07;
+    }
+}
 
 void k_clear_screen(int bg) {
     volatile char* video = (volatile char*)0xB8000; //video memory
@@ -8,16 +25,7 @@ void k_clear_screen(int bg) {
     }
 }
 
-void write(void){
-    k_clear_screen(0x0);
-    putchar('N');
-    putchar('i');
-    putchar('g'),
-    putchar('g');
-    putchar('a');
-
-}
-
 void kmain(){
-    write();
+    putchar('A');
+    putstr("test");
 }
