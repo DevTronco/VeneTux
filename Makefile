@@ -8,10 +8,10 @@ KERNEL_C = kernel.c
 KERNEL_ASM = kernel.asm
 KERNEL_OBJ_C = kernel_c.o
 KERNEL_OBJ_ASM = kernel_asm.o
-KERNEL_BIN = BootRex.bin
+KERNEL_BIN = kernel.bin
 ISO_DIR = iso
 ISO_BOOT = $(ISO_DIR)/boot
-ISO_BIN = Coso.iso
+ISO_BIN = venetux.iso
 
 GREEN = \033[32m
 RESET = \033[0m
@@ -52,3 +52,11 @@ all: $(KERNEL_BIN)
 	clear
 	qemu-img create -f raw disk.raw 256M
 	qemu-system-i386 -cdrom $(ISO_BIN) -hda disk.raw -audiodev pa,id=speaker -machine pcspk-audiodev=speaker -net nic,model=rtl8139 -net user -m 512
+
+.PHONY: clean
+
+clean:
+	@echo "Pulizia dei file generati..."
+	rm -f $(KERNEL_OBJ_ASM) $(KERNEL_OBJ_C) $(KERNEL_BIN) disk.raw $(ISO_BIN)
+	rm -rf $(ISO_DIR)
+	@echo "Pulizia completata."
