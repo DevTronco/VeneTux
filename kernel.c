@@ -1,5 +1,6 @@
 #include "headers/utils.h"
 #include "headers/string.h"
+#include "headers/keyboard_driver.h"
 
 int pos = 0;
 
@@ -7,12 +8,6 @@ void newline(){
     int row = pos / (80 * 2);
     row++;
     pos = row * 80 * 2;
-}
-
-void putchar(char c){
-    volatile char* vidmem = (volatile char*) 0xb8000;
-    vidmem[pos++] = c;
-    vidmem[pos++] = 0x07;
 }
 
 void k_clear_screen(int bg) {
@@ -31,4 +26,6 @@ void kmain(){
     putstr("sono un sigma");
     newline();
     more_args_str(idk, 2);
+
+    key_main();    
 }
