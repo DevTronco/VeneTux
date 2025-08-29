@@ -1,10 +1,10 @@
 #include "utils.h"
 
-int shift = true;
+int shift = false;
 
 unsigned char capture_char(uint8_t input, int shift){  
     if (shift){
-        switch (input){ //cata el tasto
+        switch (input){ 
         case 0x1E: return 'A';
         case 0x30: return 'B';
         case 0x2E: return 'C';
@@ -92,11 +92,11 @@ void key_main(void){
         uint8_t code = read_scancode();
 
         if (code == 0x2a || code == 0x36){
-            shift = false;
+            shift = true;
             continue;
         }
         else if (code == 0xaa || code == 0xb6){
-            shift = true;
+            shift = false;
             continue;
         }
         if (code & 0x80) {
