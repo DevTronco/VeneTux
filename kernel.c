@@ -38,11 +38,11 @@ void k_clear_screen(int bg) {
 }
 
 void kmain(){
-    u_string nomi[] = {"Adolf ", "Hitler"};
+    u_string idk[] = {"idk", "idk2"};
     k_clear_screen(0x0);
     putchar('A');
     newline();
     putstr("sono un sigma");
     newline();
-    more_args_str(nomi, 2);
+    more_args_str(idk, 2);
 }
