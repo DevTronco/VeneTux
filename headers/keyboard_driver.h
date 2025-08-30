@@ -1,10 +1,15 @@
 #include "utils.h"
 
-volatile int pos;
-
+static int enter = false;
 int shift = false;
 
 unsigned char capture_char(uint8_t input, int shift){  
+
+    if (input == 0x1c){
+        newline();
+        return 0;
+    }
+
     if (shift){
         switch (input){ 
         case 0x1E: return 'A';
@@ -35,7 +40,6 @@ unsigned char capture_char(uint8_t input, int shift){
         case 0x2C: return 'Z';
         case 0x0e: return 0;
         case 0x39: return ' ';
-        case 0x1c: "\n";
         default: return '?';
     }
     }
@@ -69,7 +73,6 @@ unsigned char capture_char(uint8_t input, int shift){
         case 0x2C: return 'z';
         case 0x0e: return 0;
         case 0x39: return ' ';
-        case 0x1c: "\n";
         default:   return '?';
     }
 }
@@ -90,31 +93,17 @@ uint8_t read_scancode(){
 }
 
 void putchar(char c){
-    volatile char* vidmem = (volatile char*) 0xb8000;
-
-    if (c == '\n'){
-        if (pos >= 80 * 25){
-            //high scroll
-            for(int i = 0; i < 80 * 24; i++){
-                vidmem[i] = vidmem[i + 80];
-            }
-            
-            //cleans last row
-            for (int i = 80 * 24; i > 80 * 25; i++){
-                vidmem[i] = 0;
-            } 
-            pos = 80 * 24;
-        }
-        else{
-           pos = (pos / 80) * 80 + 80;
-        }
+    if (c == '\n') {
+        newline();
     }
-    else{
+    else {
+        volatile char* vidmem = (volatile char*) 0xb8000;
         vidmem[pos++] = c;
-        vidmem[pos++] = 0x07;
+        vidmem[pos++] = 0x07; 
 
-        if (pos % 80 == 0){
-            pos += 80;
+        //newline
+        if (pos % 160 == 0) {
+            newline();
         }
     }
 }
@@ -138,6 +127,9 @@ void key_main(void){
         unsigned char c = capture_char(code, shift);
         if (c != '?'){
             putchar(c);
+            if (c == 0x0d){
+                newline();
+            }
         }
     }
 }

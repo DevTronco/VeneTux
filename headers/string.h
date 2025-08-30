@@ -1,15 +1,12 @@
 #include "utils.h"
 
-volatile int pos;
-
 typedef const char* u_string;
 typedef char* string;
 
 void putstr(u_string sentence){
-    volatile unsigned char* vidmem = (volatile unsigned char*) 0xb8000;
     while(*sentence){
-        vidmem[pos++] = *sentence++;
-        vidmem[pos++] = 0x07;
+        videomem[pos++] = *sentence++;
+        videomem[pos++] = 0x07;
     }
 }
 

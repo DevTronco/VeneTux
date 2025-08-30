@@ -2,22 +2,6 @@
 #include "headers/string.h"
 #include "headers/keyboard_driver.h"
 
-int pos = 0;
-
-void newline(){
-    int row = pos / (80 * 2);
-    row++;
-    pos = row * 80 * 2;
-}
-
-void k_clear_screen(int bg) {
-    volatile char* video = (volatile char*)0xB8000; //video memory
-    for (int i = 0; i < 80 * 25 * 2; i += 2) {
-        video[i] = ' ';
-        video[i + 1] = bg;
-    }
-}
-
 void kmain(){
     u_string idk[] = {"idk", "idk2"};
     k_clear_screen(0x0);
@@ -27,5 +11,6 @@ void kmain(){
     newline();
     more_args_str(idk, 2);
 
+    newline();
     key_main();    
 }
