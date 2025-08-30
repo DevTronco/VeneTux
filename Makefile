@@ -6,8 +6,10 @@ LDFLAGS = -m elf_i386 -T linker.ld
 ASMFLAGS = -f elf32
 KERNEL_C = kernel.c
 KERNEL_ASM = kernel.asm
+PIC_ASM = pic.asm
 KERNEL_OBJ_C = kernel_c.o
 KERNEL_OBJ_ASM = kernel_asm.o
+PIC_OBJ_ASM = pic.o
 KERNEL_BIN = kernel.bin
 ISO_DIR = iso
 ISO_BOOT = $(ISO_DIR)/boot
@@ -19,19 +21,19 @@ YELLOW = \033[33m
 
 all: iso
 
-$(KERNEL_OBJ_ASM): $(KERNEL_ASM)
-	@echo "$(YELLOW)Compilando $(KERNEL_ASM)...$(RESET)"
-	$(AS) $(ASMFLAGS) $(KERNEL_ASM) -o $(KERNEL_OBJ_ASM)
-	@if [ $$? -eq 0 ]; then echo "$(GREEN)Compilazione $(KERNEL_ASM) riuscita.$(RESET)"; fi
-
 $(KERNEL_OBJ_C): $(KERNEL_C)
 	@echo "$(YELLOW)Compilando $(KERNEL_C)...$(RESET)"
 	$(CC) $(CFLAGS) -c $(KERNEL_C) -o $(KERNEL_OBJ_C)
 	@if [ $$? -eq 0 ]; then echo "$(GREEN)Compilazione $(KERNEL_C) riuscita.$(RESET)"; fi
-
+	
+$(KERNEL_OBJ_ASM): $(KERNEL_ASM)
+	@echo "$(YELLOW)Compilando $(KERNEL_ASM)...$(RESET)"
+	$(AS) $(ASMFLAGS) $(KERNEL_ASM) -o $(KERNEL_OBJ_ASM)
+	$(AS) $(ASMFLAGS) $(PIC_ASM) -o $(PIC_OBJ_ASM)
+	@if [ $$? -eq 0 ]; then echo "$(GREEN)Compilazione $(KERNEL_ASM) riuscita.$(RESET)"; fi
 $(KERNEL_BIN): $(KERNEL_OBJ_ASM) $(KERNEL_OBJ_C)
 	@echo "$(YELLOW)Linkando $(KERNEL_OBJ_ASM) e $(KERNEL_OBJ_C) per creare $(KERNEL_BIN)...$(RESET)"
-	$(LD) $(LDFLAGS) -o $(KERNEL_BIN) $(KERNEL_OBJ_ASM) $(KERNEL_OBJ_C)
+	$(LD) $(LDFLAGS) -o $(KERNEL_BIN) $(KERNEL_OBJ_ASM) $(KERNEL_OBJ_C) $(PIC_OBJ_ASM)
 	@if [ $$? -eq 0 ]; then echo "$(GREEN)Creazione del kernel $(KERNEL_BIN) riuscita.$(RESET)"; fi
 
 iso: $(KERNEL_BIN)

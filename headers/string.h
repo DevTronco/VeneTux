@@ -1,5 +1,7 @@
 #include "utils.h"
 
+volatile int pos;
+
 typedef const char* u_string;
 typedef char* string;
 
