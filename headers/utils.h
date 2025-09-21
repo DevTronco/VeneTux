@@ -100,7 +100,7 @@ uint32_t rm_bg(int x){
     cursor_rows = 0;
 }
 void putchar(char c){
-    if (c == "\n"){
+    if (c == '\n'){
         cursor_cols = 0;
         cursor_rows++;
         if (cursor_rows >= VGA_ROW){
@@ -120,6 +120,7 @@ void putchar(char c){
         if (cursor_rows >= VGA_ROW){
             cursor_rows = VGA_ROW - 1;
             scroll_screen();
+            pos = (cursor_rows * VGA_COLS + cursor_cols) * 2;
         }
     }
 }

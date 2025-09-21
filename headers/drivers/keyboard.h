@@ -70,6 +70,7 @@ uint8_t capture_char(uint8_t c, bool shift){
 uint8_t read_raw_scancode(){
     uint8_t code;
     inb_for_0x60(code);
+    return code;
 }
 
 void key_main(void){
