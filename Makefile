@@ -1,7 +1,7 @@
 AS = nasm
 CC = gcc
 LD = ld
-CFLAGS = -ffreestanding -m32 -nostdlib
+CFLAGS = -ffreestanding -m32 -nostdlib -Iheaders
 LDFLAGS = -m elf_i386 -T linker.ld
 ASMFLAGS = -f elf32
 KERNEL_C = kernel.c

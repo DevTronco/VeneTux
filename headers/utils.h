@@ -4,7 +4,6 @@
 #define VGA_COLS 80
 #define VGA_ROW 25
 
-
 typedef unsigned char uint8_t;
 typedef unsigned short uint16_t;
 typedef unsigned int uint32_t;
@@ -24,10 +23,40 @@ typedef uint32_t size_t;
 volatile char* vidmem = (volatile char*) 0xb8000;
 static int pos = 0;
 
+int cursor_rows = 0;
+int cursor_cols = 0;
+
+typedef enum{
+    false = 0,
+    true = 1
+} bool;
+
+uint8_t inb_for_0x60(uint8_t code){
+    __asm__ __volatile__("inb $0x60, %0" : "=a"(code));
+    return code;
+}
+
+void scroll_screen() {
+    //moves
+    for (int row = 1; row < VGA_ROW; row++) {
+        for (int col = 0; col < VGA_COLS * 2; col++) {
+            vidmem[(row - 1) * VGA_COLS * 2 + col] = vidmem[row * VGA_COLS * 2 + col];
+        }
+    }
+    
+    //cleans
+    int last_row_offset = (VGA_ROW - 1) * VGA_COLS * 2;
+    for (int col = 0; col < VGA_COLS * 2; col += 2) {
+        vidmem[last_row_offset + col] = ' ';
+        vidmem[last_row_offset + col + 1] = 0x0f; 
+    }
+}
+
 void itoa(int value, char* str) {
     char* p = str;
-    char* p1, tmp_char;
-    int tmp_value;
+    char* p1, *p2;
+    char tmp_char;
+    int is_negative = 0;
 
     if (value == 0) {
         *p++ = '0';
@@ -36,6 +65,7 @@ void itoa(int value, char* str) {
     }
 
     if (value < 0) {
+        is_negative = 1;
         *p++ = '-';
         value = -value;
     }
@@ -43,41 +73,78 @@ void itoa(int value, char* str) {
     p1 = p;
 
     while (value) {
-        tmp_value = value % 10;
-        *p++ = '0' + tmp_value;
+        *p++ = '0' + (value % 10);
         value /= 10;
     }
+
     *p = '\0';
 
-    // Reverse
-    while (--p1 < --p) {
-        tmp_char = *p;
-        *p = *p1;
-        *p1 = tmp_char;
+    // Reverse only the digits 
+    p2 = p - 1;
+    while (p1 < p2) {
+        tmp_char = *p1;
+        *p1 = *p2;
+        *p2 = tmp_char;
+        p1++;
+        p2--;
     }
 }
 
-unsigned int rm_bg(int x){
+uint32_t rm_bg(int x){
     for (int i = 0; i < VGA_ROW * VGA_COLS * 2; i+=2){
         vidmem[i] = ' ';
         vidmem[i+1] = 0x0f;
     }
-}
-unsigned char putchar(char c){
-    vidmem[pos++] = c;
-    vidmem[pos++] = 0x0f; //white
-}
 
-int putint(int x){
-    char buffer[16];
-    itoa(x, buffer);
-    char* s = buffer;
-    while (*s){
-        vidmem[pos++] = *s++;
-        vidmem[pos++] = 0x0f;
+    cursor_cols = 0;
+    cursor_rows = 0;
+}
+void putchar(char c){
+    if (c == "\n"){
+        cursor_cols = 0;
+        cursor_rows++;
+        if (cursor_rows >= VGA_ROW){
+            cursor_rows = VGA_ROW - 1;
+        }
+        return;
     }
 
-    return s;
+    int offset = (cursor_rows * VGA_COLS + cursor_cols) * 2;
+    vidmem[pos++] = c;
+    vidmem[pos++] = 0x0f; //white
+
+    cursor_cols++;
+    if (cursor_cols >= VGA_COLS){
+        cursor_cols = 0;
+        cursor_rows++;
+        if (cursor_rows >= VGA_ROW){
+            cursor_rows = VGA_ROW - 1;
+            scroll_screen();
+        }
+    }
+}
+
+void putint(int x){
+    char buffer[16];
+    itoa(x, buffer);
+    putstr(buffer);
+}
+
+void put_int_at(int x, int rows, int cols){
+    if (rows >= VGA_ROW || cols >= VGA_COLS) return;
+
+    char buffer[16];
+    itoa(x, buffer);
+
+    int offset = (rows * VGA_COLS + cols) * 2;
+    for (int i = 0; buffer[i] != '\0'; i++){
+        if (cols + i >= VGA_COLS) break;
+
+        vidmem[offset] = buffer[i];
+        vidmem[offset + 1] = 0x0f;
+
+        offset += 2;
+    }
 }
 
 #endif

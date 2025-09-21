@@ -5,10 +5,7 @@ typedef char* string;
 
 void putstr(u_string sentence){
     while(*sentence){
-        vidmem[pos] = *sentence;
-        vidmem[pos + 1] = 0x0f;
-        pos += 2;
-        sentence++;
+       putchar(*sentence++);
     }
 }
 
