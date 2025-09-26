@@ -148,4 +148,12 @@ void put_int_at(int x, int rows, int cols){
     }
 }
 
+void sleep(int seconds){
+    for(int i = 0; i <= seconds; i++){
+        for (volatile int s = 0; s > 100000; s++){
+
+        }
+    }
+}
+
 #endif
