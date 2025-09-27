@@ -31,6 +31,8 @@ uint8_t capture_char(uint8_t c, bool shift){
         case 0x2D: return 'X';
         case 0x15: return 'Y';
         case 0x2C: return 'Z';
+        case 0x39: return ' ';
+        case 0x1c: return '\n';
         default: return '?';
         }
     }
@@ -62,15 +64,35 @@ uint8_t capture_char(uint8_t c, bool shift){
         case 0x2D: return 'x';
         case 0x15: return 'y';
         case 0x2C: return 'z';
+        case 0x39: return ' ';
+        case 0x1c: return '\n';
         default:   return '?';
         }
     }
 }
 
 uint8_t read_raw_scancode(){
-    uint8_t code;
-    inb_for_0x60(code);
-    return code;
+    uint8_t status;
+    do{
+        status = inb(0x64);
+    } while (!(status & 1));
+    return inb(0x60);
+}
+
+void key_putchar(char c){
+    if (c == '\n'){
+        pos += (160 - (pos % 160));
+    }
+    else{
+        vidmem[pos] = c;
+        vidmem[pos + 1] = 0x07;
+        pos += 2;
+    }
+
+    if (pos >= 80 * 25 * 2){
+        scroll_screen();
+        pos = (80 * 24) * 2;
+    }
 }
 
 void key_main(void){
@@ -85,11 +107,26 @@ void key_main(void){
             shift = false;
             continue;
         }
-        
+
+        if (code & 0x80){
+            continue;
+        }
+            
+        if (code == 0x0e){
+            if (pos > 0){
+                pos -= 2;
+                vidmem[pos] = ' ';
+                vidmem[pos + 1] = 0x07;
+            }
+            continue;
+        }
+
         char c = capture_char(code, shift);
 
         if (c != '?'){
-            putchar(c);
+            key_putchar(c);
         }
+
+        sleep(1);
     }
 }

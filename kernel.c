@@ -18,5 +18,5 @@ void kmain(){
     print_color_at("Ciao ma in un posto diverso ", 15, 25, 0x3c);
     print_change_color("Ciao!!");
     print_change_color_at("Ciao di nuovo!", 17, 25);
-    //key_main();
+    key_main();
 }
