@@ -114,7 +114,7 @@ void key_main(void){
         char c = capture_char(code, shift);
 
         if (c != '?'){
-            key_putchar(c);
+            putchar(c);
         }
 
         sleep(1);

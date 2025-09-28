@@ -41,19 +41,14 @@ static inline void outb(uint16_t port, uint8_t val) {
     asm volatile ("outb %0, %1" : : "a"(val), "Nd"(port));
 }
 
+static inline uint16_t inw(uint16_t port) {
+    uint16_t result;
+    __asm__ volatile ("inw %1, %0" : "=a"(result) : "Nd"(port));
+    return result;
+}
+
 static inline void outw(uint16_t port, uint16_t val) {
     asm volatile ("outw %0, %1" : : "a"(val), "Nd"(port));
-}
-
-void shutdown(){
-    outw(0x604, 0x2000);
-}
-
-void reboot(){
-    asm volatile ("cli");
-    while ((inb(0x64) && 0x02) == 0);
-    outb(0x64, 0xFE);
-    for(;;) {}
 }
 
 void scroll_screen() {
