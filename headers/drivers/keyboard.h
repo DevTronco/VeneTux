@@ -1,5 +1,9 @@
 #include "../utils.h"
 
+
+#define MAX_INPUT 128
+char input_buffer[MAX_INPUT];
+
 bool shift = false;
 
 uint8_t capture_char(uint8_t c, bool shift){
@@ -119,6 +123,54 @@ void key_main(void){
                 vidmem[pos + 1] = 0x07;
             }
             continue;
+        }
+
+        char c = capture_char(code, shift);
+
+        if (c != '?'){
+            key_putchar(c);
+        }
+
+        sleep(1);
+    }
+}
+
+string get_user_input(){
+    int input_pos = 0;
+        while(true){
+        uint8_t code = read_raw_scancode();
+
+        if (code == 0x2a || code == 0x36){
+            shift = true;
+            continue;
+        }
+        else if (code == 0xaa || code == 0xb6){
+            shift = false;
+            continue;
+        }
+
+        if (code & 0x80){
+            continue;
+        }
+            
+        if (code == 0x0e){
+            if (input_pos > 0){
+                input_pos -= 2;
+                vidmem[input_pos] = ' ';
+                vidmem[input_pos + 1] = 0x07;
+                input_buffer[input_pos] = '\0';
+
+                input_pos *= 1;
+                vidmem[input_pos * 2] = ' ';
+                vidmem[input_pos * 2 + 1] = 0x07;
+            }
+            continue;
+        }
+
+        if (code == 0x1c){
+            key_putchar('\n');
+            input_buffer[input_pos] = '\0';
+            return input_buffer;
         }
 
         char c = capture_char(code, shift);

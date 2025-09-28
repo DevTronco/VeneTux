@@ -2,15 +2,39 @@
 #include "headers/string.h"
 #include "headers/drivers/keyboard.h"
 
-
 void kmain(){
     rm_bg(0x0);
+    while(true){
+        putstr("CMD >> ");
+        const char* input = get_user_input();
+        putstr("hai scritto: ");
+        putstr(input);
+        putstr("\r\n");
+
+        if (strcmp(input, "help") == 0){
+            putstr("Avaiable commands: \r\n");
+            putstr("help: you just wrote it gang\r\n");
+            putstr("info: shows VeneTux verison\r\n");
+            putstr("author_info: shows author socials\r\n");
+            putstr("clear: clears screen\r\n");
+            putstr("stop: stops shell\r\n");
+        }
+        else if (strcmp(input, "clear") == 0){
+            rm_bg(0x0);
+        }
+        else if (strcmp(input, "stop") == 0){
+            break;
+        }
+    }
+
+    
+
+
+    rm_bg(0x0);
     putchar('W');
-    putstr(" ciao mondo");
+    putstr(" ciao mondo ");
     print_at('x ', 15, 40);
     print_str_at("sigma", 20, 60);
-    //putint(1);
-    print_str_at("dddd", 3, 19);
     int len = strlen("sigma");
     putint(len);
     put_int_at(1334, 24, 43);

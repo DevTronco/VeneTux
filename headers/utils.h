@@ -31,16 +31,21 @@ typedef enum{
     true = 1
 } bool;
 
-uint8_t inb_for_0x60(uint8_t code){
-    __asm__ __volatile__("inb $0x60, %0" : "=a"(code));
-    return code;
+static inline uint8_t inb(uint16_t port) {
+    uint8_t result;
+    asm volatile ("inb %1, %0" : "=a"(result) : "Nd"(port));
+    return result;
 }
 
 void scroll_screen() {
     //moves
     for (int row = 1; row < VGA_ROW; row++) {
-        for (int col = 0; col < VGA_COLS * 2; col++) {
-            vidmem[(row - 1) * VGA_COLS * 2 + col] = vidmem[row * VGA_COLS * 2 + col];
+        for (int col = 0; col < VGA_COLS; col++) {
+            int from = (row * VGA_COLS + col) * 2;
+            int to   = ((row - 1) * VGA_COLS + col) * 2;
+
+            vidmem[to]     = vidmem[from];     
+            vidmem[to + 1] = vidmem[from + 1]; 
         }
     }
     
@@ -98,6 +103,7 @@ uint32_t rm_bg(int x){
 
     cursor_cols = 0;
     cursor_rows = 0;
+    pos = 0;
 }
 void putchar(char c){
     if (c == '\n'){

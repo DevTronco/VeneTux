@@ -32,7 +32,7 @@ $(KERNEL_OBJ_ASM): $(KERNEL_ASM)
 	@if [ $$? -eq 0 ]; then echo "$(GREEN)Compilazione $(KERNEL_ASM) riuscita.$(RESET)"; fi
 $(KERNEL_BIN): $(KERNEL_OBJ_ASM) $(KERNEL_OBJ_C)
 	@echo "$(YELLOW)Linkando $(KERNEL_OBJ_ASM) e $(KERNEL_OBJ_C) per creare $(KERNEL_BIN)...$(RESET)"
-	$(LD) $(LDFLAGS) -o $(KERNEL_BIN) $(KERNEL_OBJ_ASM) $(KERNEL_OBJ_C)
+	$(LD) $(LDFLAGS) -o $(KERNEL_BIN) $(KERNEL_OBJ_ASM) $(KERNEL_OBJ_C) $(PIC_OBJ_ASM)
 	@if [ $$? -eq 0 ]; then echo "$(GREEN)Creazione del kernel $(KERNEL_BIN) riuscita.$(RESET)"; fi
 
 iso: $(KERNEL_BIN)
