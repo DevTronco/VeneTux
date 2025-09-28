@@ -4,12 +4,13 @@
 
 void kmain(){
     rm_bg(0x0);
+    putstr("Hello! \r\n");
     while(true){
         putstr("CMD >> ");
         const char* input = get_user_input();
-        putstr("hai scritto: ");
-        putstr(input);
-        putstr("\r\n");
+        //putstr("hai scritto: ");
+        //putstr(input);
+        //putstr("\r\n");
 
         if (strcmp(input, "help") == 0){
             putstr("Avaiable commands: \r\n");
@@ -18,12 +19,30 @@ void kmain(){
             putstr("author_info: shows author socials\r\n");
             putstr("clear: clears screen\r\n");
             putstr("stop: stops shell\r\n");
+            putstr("reboot: reboots the system \r\n");
+            putstr("shutdown: shutdowns the system \r\n");
         }
         else if (strcmp(input, "clear") == 0){
             rm_bg(0x0);
         }
+        else if (strcmp(input, "info") == 0){
+            putstr("VeneTux version 0.0.1 beta \r\n");
+        }
+        else if(strcmp(input, "author_info") == 0){
+            putstr("Add me on Discord: _tr0nc0_ \r\n");
+            putstr("Star VeneTux on GitHub! https://github.com/DevTronco/VeneTux! \r\n");
+        }
         else if (strcmp(input, "stop") == 0){
             break;
+        }
+        else if (strcmp(input, "reboot") == 0){
+            reboot();
+        }
+        else if (strcmp(input, "shutdown") == 0){
+            shutdown();
+        }
+        else{
+            putstr("Command not found \r\n");
         }
     }
 

@@ -37,6 +37,25 @@ static inline uint8_t inb(uint16_t port) {
     return result;
 }
 
+static inline void outb(uint16_t port, uint8_t val) {
+    asm volatile ("outb %0, %1" : : "a"(val), "Nd"(port));
+}
+
+static inline void outw(uint16_t port, uint16_t val) {
+    asm volatile ("outw %0, %1" : : "a"(val), "Nd"(port));
+}
+
+void shutdown(){
+    outw(0x604, 0x2000);
+}
+
+void reboot(){
+    asm volatile ("cli");
+    while ((inb(0x64) && 0x02) == 0);
+    outb(0x64, 0xFE);
+    for(;;) {}
+}
+
 void scroll_screen() {
     //moves
     for (int row = 1; row < VGA_ROW; row++) {
@@ -109,25 +128,24 @@ void putchar(char c){
     if (c == '\n'){
         cursor_cols = 0;
         cursor_rows++;
-        if (cursor_rows >= VGA_ROW){
-            cursor_rows = VGA_ROW - 1;
+    }
+    else if (c == '\r'){
+        cursor_cols = 0;
+    }
+    else{  
+        int offset = (cursor_rows * VGA_COLS + cursor_cols) * 2;
+        vidmem[offset] = c;
+        vidmem[offset + 1] = 0x0f; //white
+        cursor_cols++;
+        if (cursor_cols >= VGA_COLS){
+            cursor_cols = 0;
+            cursor_rows++;
         }
-        return;
     }
 
-    int offset = (cursor_rows * VGA_COLS + cursor_cols) * 2;
-    vidmem[pos++] = c;
-    vidmem[pos++] = 0x0f; //white
-
-    cursor_cols++;
-    if (cursor_cols >= VGA_COLS){
-        cursor_cols = 0;
-        cursor_rows++;
-        if (cursor_rows >= VGA_ROW){
-            cursor_rows = VGA_ROW - 1;
-            scroll_screen();
-            pos = (cursor_rows * VGA_COLS + cursor_cols) * 2;
-        }
+    if (cursor_rows >= VGA_ROW){
+        scroll_screen();
+        cursor_rows = VGA_ROW - 1;
     }
 }
 

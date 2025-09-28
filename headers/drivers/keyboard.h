@@ -37,6 +37,7 @@ uint8_t capture_char(uint8_t c, bool shift){
         case 0x2C: return 'Z';
         case 0x39: return ' ';
         case 0x1c: return '\n';
+        case 0x0c: return '_';
         default: return '?';
         }
     }
@@ -70,6 +71,7 @@ uint8_t capture_char(uint8_t c, bool shift){
         case 0x2C: return 'z';
         case 0x39: return ' ';
         case 0x1c: return '\n';
+        case 0x0c: return '_';
         default:   return '?';
         }
     }
@@ -153,30 +155,36 @@ string get_user_input(){
             continue;
         }
             
-        if (code == 0x0e){
-            if (input_pos > 0){
-                input_pos -= 2;
-                vidmem[input_pos] = ' ';
-                vidmem[input_pos + 1] = 0x07;
-                input_buffer[input_pos] = '\0';
-
-                input_pos *= 1;
-                vidmem[input_pos * 2] = ' ';
-                vidmem[input_pos * 2 + 1] = 0x07;
-            }
-            continue;
-        }
-
-        if (code == 0x1c){
-            key_putchar('\n');
+    if (code == 0x0E) {  // Backspace
+        if (input_pos > 0) {
+            input_pos--;
             input_buffer[input_pos] = '\0';
+
+    
+            cursor_cols--;
+                if (cursor_cols < 0) {
+                    cursor_cols = VGA_COLS - 1;
+                    cursor_rows--;
+                }
+
+        int offset = (cursor_rows * VGA_COLS + cursor_cols) * 2;
+        vidmem[offset] = ' ';
+        vidmem[offset + 1] = 0x0F;
+        }
+    continue;
+    }
+
+        if (code == 0x1C) {
+            input_buffer[input_pos] = '\0';  
+            putstr("\r\n");  
             return input_buffer;
         }
 
         char c = capture_char(code, shift);
 
         if (c != '?'){
-            key_putchar(c);
+            input_buffer[input_pos++] = c;
+            putchar(c);
         }
 
         sleep(1);
