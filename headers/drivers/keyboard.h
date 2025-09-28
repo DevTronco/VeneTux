@@ -85,22 +85,6 @@ uint8_t read_raw_scancode(){
     return inb(0x60);
 }
 
-void key_putchar(char c){
-    if (c == '\n'){
-        pos += (160 - (pos % 160));
-    }
-    else{
-        vidmem[pos] = c;
-        vidmem[pos + 1] = 0x07;
-        pos += 2;
-    }
-
-    if (pos >= 80 * 25 * 2){
-        scroll_screen();
-        pos = (80 * 24) * 2;
-    }
-}
-
 void key_main(void){
     while(true){
         uint8_t code = read_raw_scancode();
