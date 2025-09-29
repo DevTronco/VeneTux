@@ -1,7 +1,9 @@
 bits 32
 extern key_main
 extern putchar
+extern rtc_handler
 
+global keyboard_isr
 
 init_pic:
 
@@ -32,32 +34,27 @@ init_pic:
     out 0xa1, al ;pic2 sends eoi
 
     ;turns on interrupt
-    mov al, 0xfd
+    mov al, 0x7d
     out 0x21, al ;covers any irq except irq1 (keyboard)
-    mov al, 0xff
+    mov al, 0xfe
     out 0xa1, al ;covers any irq in pic2
 
     sti ;enables interrupts
 
 keyboard_isr:
     pusha               ;saves registers
-    in al, 0x60         ;sets port 0x60
-    call key_main       ;calls key_main (defined in headers/keyboard_driver.h)\
-    cmp al, 0x1c
-    je putchar_handler
+    call key_main      ;calls key_main (defined in headers/drivers/keyboard_driver.h)\
     mov al, 0x20        
     out 0x20, al        ;eoi
     popa                ;resets registers
     iret
 
-putchar_handler:
-    push eax
-    movzx eax, al
-    call putchar
-    pop eax
-
+rtc_isr:
+    pusha
+    call rtc_handler
     mov al, 0x20
-    out 0x20, al
+    out 0xA0, al 
+    out 0x20, al 
     popa
     iret
 

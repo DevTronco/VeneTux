@@ -4,8 +4,9 @@
 #include "headers/memory.h"
 #include "headers/drivers/shutdown.h"
 #include "headers/drivers/reboot.h"
+#include "headers/time.h"
 
-void command_handler(const char* cmd, const char* args) {
+void command_handler(string cmd, string args) {
     if (strcmp(cmd, "echo") == 0) {
         putstr(args);
     }
@@ -36,6 +37,7 @@ bool process_input(string input){
         putstr("stop: stops shell\r\n");
         putstr("reboot: reboots the system \r\n");
         putstr("shutdown: shutdowns the system \r\n");
+        putstr("time: prints current time \r\n");
         return true;
     }
     else if (strcmp(cmd, "clear") == 0){
@@ -72,6 +74,9 @@ bool process_input(string input){
         putstr("\r\n");
         return true;
     }
+    else if (strcmp(cmd, "time") == 0){
+        print_time();
+    }
     else{
         putstr("Command not found \r\n");
         return true;
@@ -83,16 +88,14 @@ void kmain(){
     putstr("Hello! \r\n");
     putstr("Digit 'help' to see the commands. \r\n");
     while(true){
+        print_time();
         putstr("CMD >> ");
-        const char* input = get_user_input();
+        string input = get_user_input();
         bool should_continue = process_input(input);
         if (!should_continue){
             break;
         }
     }
-
-    
-
 
     rm_bg(0x0);
     putchar('W');
@@ -106,5 +109,4 @@ void kmain(){
     print_color_at("Ciao ma in un posto diverso ", 15, 25, 0x3c);
     print_change_color("Ciao!!");
     print_change_color_at("Ciao di nuovo!", 17, 25);
-    key_main();
 }
